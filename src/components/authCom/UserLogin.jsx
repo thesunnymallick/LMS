@@ -1,19 +1,34 @@
 import { InputAdornment, TextField } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { InputLabel } from "@mui/material";
 import { MdOutlineMail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CiLogin } from "react-icons/ci";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/apiConfig";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../loader/LoadingSpinner";
+import {useDispatch} from "react-redux"
+import { addLogin } from "../../feature/LoginSlice";
+
+
 const loginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
 });
+
+
+
 const UserLogin = () => {
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+
+  const navigate=useNavigate();
+  const dispatch=useDispatch()
+
   const initialLoginData = {
     email: "",
     password: "",
@@ -21,15 +36,32 @@ const UserLogin = () => {
 
   const handelLogin = async (newData) => {
     try {
-      const { data, status } = await axios.post(
+      setLoading(true);
+      const {data, status } = await axios.post(
         `${API_BASE_URL}/api/cus/credentials/login`,
         newData
       );
-      console.log(data, status);
+
       if (status === 200) {
-        console.log(data);
+        setLoading(false);
+        toast.success("Login successful!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+        setErrMsg("");
+    
+        // Save login info in redux
+        dispatch(addLogin({user: data?.data, admin: null}))
+
+
+        navigate("/userDashboard")
       }
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false);
+      if (error.response.data.status === 400) {
+        setErrMsg(error.response.data.data);
+      }
+    }
   };
 
   // User login
@@ -39,7 +71,7 @@ const UserLogin = () => {
       validationSchema: loginSchema,
       onSubmit: (values) => {
         if (values) {
-          console.log(values)
+          console.log(values);
           handelLogin(values);
         }
       },
@@ -47,7 +79,6 @@ const UserLogin = () => {
 
   return (
     <form onSubmit={handleSubmit} className="px-2 py-6">
-
       <div className="pb-3">
         <InputLabel className="mb-1" required>
           Enter your email
@@ -112,9 +143,15 @@ const UserLogin = () => {
         </Link>
       </div>
 
+      {errMsg && (
+        <div className="flex justify-center">
+          <span className="text-xs text-red-500">{errMsg}</span>
+        </div>
+      )}
+
       <div className="py-2">
         <button
-        type="submit"
+          type="submit"
           className="w-[30%] h-10 bg-purple-500
         text-white flex justify-center 
         items-center gap-2 text-lg rounded-md hover:bg-purple-700 transition-all"
@@ -141,6 +178,7 @@ const UserLogin = () => {
           </Link>
         </span>
       </div>
+      {loading && <LoadingSpinner />}
     </form>
   );
 };

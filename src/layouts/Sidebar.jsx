@@ -1,45 +1,72 @@
-
-import { useContext, createContext, useState } from "react"
+import { useContext, createContext, useState } from "react";
 import { MdDashboard } from "react-icons/md";
 import { FaUserGroup } from "react-icons/fa6";
 import { FaAngleDoubleLeft } from "react-icons/fa";
 import { FaAngleDoubleRight } from "react-icons/fa";
-
-
-
-
-const SidebarContext = createContext()
-
+import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
+import { MdLeaderboard } from "react-icons/md";
+import { LuUnlock } from "react-icons/lu";
+import { IoIosLogOut } from "react-icons/io";
+import { GoGift } from "react-icons/go";
+import {addLogout} from "../feature/LoginSlice"
+import {useDispatch} from "react-redux"
+const SidebarContext = createContext();
 
 export default function Sidebar({ children }) {
-  const [expanded, setExpanded] = useState(true)
+  const dispatch=useDispatch()
+  const [expanded, setExpanded] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
-  const sideBarData=[
+  const sideBarData = [
     {
-      icon :<MdDashboard/>,
+      icon: <MdDashboard />,
       text: "Dashboard",
-    
+      link: "/adminDashboard",
     },
     {
-      icon :<FaUserGroup/>,
+      icon: <FaUserGroup />,
       text: "Users",
+      link: "/admin/users",
+    },
+    {
+      icon: <MdLeaderboard />,
+      text: "Leads",
+      link: "/admin/leads",
+    },
+    {
+      icon: <LuUnlock />,
+      text: "Permisson",
+      link: "/admin/permisson",
+    },
+    {
+      icon: <GoGift />,
+      text: "Reward",
+      link: "/admin/reward",
+    },
+    {
+      icon: <IoIosLogOut />,
+      text: "logout",
+      link: "/",
+    },
+  ];
 
-    }
-  ]
-  
 
-   // Function to handle sidebar item click
-   const handleItemClick = (text) => {
+  // Function to handle sidebar item click
+  const handleItemClick = (text) => {
     setActiveItem(text === activeItem ? null : text); // Toggle active state
+    if(text==="logout"){
+      dispatch(addLogout())
+    }
   };
+  
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
-        <div className="p-4 pb-2 flex justify-between items-center">
+        <div className="p-4 pt-3  pb-2 flex justify-between items-center">
           <img
-            src="https://img.logoipsum.com/243.svg"
+            src={logo}
             className={`overflow-hidden transition-all ${
-              expanded ? "w-32" : "w-0"
+              expanded ? "w-16" : "w-0"
             }`}
             alt=""
           />
@@ -47,21 +74,26 @@ export default function Sidebar({ children }) {
             onClick={() => setExpanded((curr) => !curr)}
             className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
           >
-            {expanded ? <FaAngleDoubleLeft/> : <FaAngleDoubleRight/>}
+            {expanded ? <FaAngleDoubleLeft /> : <FaAngleDoubleRight />}
           </button>
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
           <ul className="flex-1 px-3">
-            {
-              sideBarData?.map((item)=>{
-                return <SidebarItem key={item?.text} 
-                text={item?.text} icon={item?.icon}
-                 active={item?.text === activeItem} // Pass active state
-                 onClick={() => handleItemClick(item?.text)} 
-              />
-              })
-            }
+            {sideBarData?.map((item) => {
+              return (
+                <SidebarItem
+                  key={item?.text}
+                  text={item?.text}
+                  icon={item?.icon}
+                  link={item?.link}
+                  active={item?.text === activeItem} // Pass active state
+                  onClick={() => handleItemClick(item?.text)}
+                  
+                />
+              );
+            })}
+           
           </ul>
         </SidebarContext.Provider>
 
@@ -86,15 +118,16 @@ export default function Sidebar({ children }) {
         </div>
       </nav>
     </aside>
-  )
+  );
 }
 
-export function SidebarItem({ icon, text, active, alert, onClick }) {
-  const { expanded } = useContext(SidebarContext)
+export function SidebarItem({ icon, text, active, alert, onClick, link }) {
+  const { expanded } = useContext(SidebarContext);
   
   return (
-    <li
-    onClick={onClick}
+    <Link
+      to={link}
+      onClick={onClick}
       className={`
         relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer
@@ -134,6 +167,6 @@ export function SidebarItem({ icon, text, active, alert, onClick }) {
           {text}
         </div>
       )}
-    </li>
-  )
+    </Link>
+  );
 }

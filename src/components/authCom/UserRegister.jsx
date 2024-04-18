@@ -1,9 +1,9 @@
 import { InputAdornment, TextField } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { InputLabel } from "@mui/material";
 import { MdOutlineMail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CiLogin } from "react-icons/ci";
 import { FaRegUser } from "react-icons/fa";
 import { useFormik } from "formik";
@@ -11,6 +11,8 @@ import { FaUserFriends } from "react-icons/fa";
 import * as yup from 'yup';
 import axios from "axios";
 import { API_BASE_URL } from "../../config/apiConfig";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../loader/LoadingSpinner";
 
 const userRegisterSchema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -20,6 +22,10 @@ const userRegisterSchema = yup.object().shape({
   parentReferralCode: yup.string().min(6, 'Referral code should be at least 6 characters long').max(6, 'Referral code should be at most 6 characters long'),
 });
 const UserRegister = () => {
+
+  const [loading, setLoading]=useState(false);
+  const [errMsg, setErrMsg] = useState("");
+  const navigate=useNavigate();
   const userRegisterData = {
     name: "",
     email: "",
@@ -38,12 +44,23 @@ const UserRegister = () => {
       parentReferralCode:newData?.parentReferralCode
     }
     try {
-      const {data, status}=await axios.post(`${API_BASE_URL}/api/cus/credentials/old/register`, registerData);
+      setLoading(true)
+      const {status}=await axios.post(`${API_BASE_URL}/api/cus/credentials/register`, registerData);
       if(status===200){
-        console.log(data)
+        setLoading(false)
+        toast.success("Register successful!", {
+          position: "top-right",
+          autoClose: 2000,
+      });
+      navigate("/")
+      setErrMsg('')
+
       }
     } catch (error) {
-      
+      setLoading(false)
+      if (error.response.data.status === 400) {
+        setErrMsg(error.response.data.data);
+      }
     }
   }
 
@@ -213,6 +230,11 @@ const UserRegister = () => {
           {touched.parentReferralCode && errors.parentReferralCode}
         </span>
       </div>
+      {errMsg && (
+        <div className="flex justify-center">
+          <span className="text-xs text-red-500">{errMsg}</span>
+        </div>
+      )}
 
       <div className="py-2">
         <button
@@ -238,6 +260,7 @@ const UserRegister = () => {
           </Link>
         </span>
       </div>
+      {loading && <LoadingSpinner/>}
     </form>
   );
 };

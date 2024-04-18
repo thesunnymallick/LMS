@@ -1,19 +1,28 @@
 import { InputAdornment, TextField } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { InputLabel } from "@mui/material";
 import { MdOutlineMail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CiLogin } from "react-icons/ci";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/apiConfig";
+import LoadingSpinner from "../loader/LoadingSpinner";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { addLogin } from "../../feature/LoginSlice";
 const loginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
 });
 const AdminLogin = () => {
+
+  const [loading, setLoading]=useState(false)
+  const [errMsg, setErrMsg] = useState("");
+  const navigate=useNavigate();
+  const dispatch=useDispatch();
   const initialLoginData = {
     email: "",
     password: "",
@@ -21,15 +30,29 @@ const AdminLogin = () => {
 
   const handelLogin = async (newData) => {
     try {
+      setLoading(true)
       const { data, status } = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         newData
       );
-      console.log(data, status);
       if (status === 200) {
         console.log(data);
+        setLoading(false)
+        setErrMsg('')
+        toast.success("Admin Login successful!", {
+          position: "top-right",
+          autoClose: 2000,
+      });
+      dispatch(addLogin({user:null , admin:data?.data}))
+      navigate("/adminDashboard")
+      setErrMsg('')
       }
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false)
+      if (error.response.data.status === 400) {
+        setErrMsg(error.response.data.data);
+      }
+    }
   };
 
   // User login
@@ -111,6 +134,13 @@ const AdminLogin = () => {
           Forgot Password?
         </Link>
       </div>
+      
+      {errMsg && (
+        <div className="flex justify-center">
+          <span className="text-xs text-red-500">{errMsg}</span>
+        </div>
+      )}
+
 
       <div className="py-2">
         <button
@@ -126,7 +156,7 @@ const AdminLogin = () => {
         </button>
       </div>
 
-     
+      {loading && <LoadingSpinner/>}
 
     </form>
   );
