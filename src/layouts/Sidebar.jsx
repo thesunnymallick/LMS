@@ -10,14 +10,16 @@ import { LuUnlock } from "react-icons/lu";
 import { IoIosLogOut } from "react-icons/io";
 import { GoGift } from "react-icons/go";
 import {addLogout} from "../feature/LoginSlice"
-import {useDispatch} from "react-redux"
+import {useDispatch, useSelector} from "react-redux"
 const SidebarContext = createContext();
 
 export default function Sidebar({ children }) {
   const dispatch=useDispatch()
   const [expanded, setExpanded] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
-  const sideBarData = [
+  const user = useSelector((state) => state.loginInfo.user);
+  const admin = useSelector((state) => state.loginInfo.admin);
+  const sidebarDataAdmin = [
     {
       icon: <MdDashboard />,
       text: "Dashboard",
@@ -35,8 +37,8 @@ export default function Sidebar({ children }) {
     },
     {
       icon: <LuUnlock />,
-      text: "Permisson",
-      link: "/admin/permisson",
+      text: "Permission",
+      link: "/admin/permission",
     },
     {
       icon: <GoGift />,
@@ -45,7 +47,25 @@ export default function Sidebar({ children }) {
     },
     {
       icon: <IoIosLogOut />,
-      text: "logout",
+      text: "Logout",
+      link: "/",
+    },
+  ];
+
+  const sidebarDataUser = [
+    {
+      icon: <MdDashboard />,
+      text: "Dashboard",
+      link: "/user/dashboard",
+    },
+    {
+      icon: <GoGift />,
+      text: "Gift",
+      link: "/user/gift",
+    },
+    {
+      icon: <IoIosLogOut />,
+      text: "Logout",
       link: "/",
     },
   ];
@@ -54,11 +74,13 @@ export default function Sidebar({ children }) {
   // Function to handle sidebar item click
   const handleItemClick = (text) => {
     setActiveItem(text === activeItem ? null : text); // Toggle active state
-    if(text==="logout"){
+    if(text==="Logout"){
       dispatch(addLogout())
     }
   };
   
+  const sideBarData = admin.isAdmin ? sidebarDataAdmin : sidebarDataUser;
+
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
@@ -110,8 +132,10 @@ export default function Sidebar({ children }) {
           `}
           >
             <div className="leading-4">
-              <h4 className="font-semibold">John Doe</h4>
-              <span className="text-xs text-gray-600">johndoe@gmail.com</span>
+              <h4 className="font-semibold">{admin.isAdmin ? admin.adminName : user.userName}</h4>
+              <span className="text-xs text-gray-600">
+                {admin.isAdmin ? admin.adminEmail : user.userEmail}
+              </span>
             </div>
             {/* <MoreVertical size={20} /> */}
           </div>
