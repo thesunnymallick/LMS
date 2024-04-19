@@ -11,6 +11,8 @@ const Register = () => {
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
+
+  
   return (
     <div className="w-full h-screen  flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-sm flex gap-6 w-[70%]">

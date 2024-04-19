@@ -49,7 +49,7 @@ const AdminLogin = () => {
       }
     } catch (error) {
       setLoading(false)
-      if (error.response.data.status === 400) {
+      if (error.response.data.status === 400 || 401) {
         setErrMsg(error.response.data.data);
       }
     }
