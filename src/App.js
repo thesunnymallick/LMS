@@ -10,6 +10,7 @@ import { API_BASE_URL } from './config/apiConfig'
 import UserDashboard from './pages/dashboard/UserDashboard'
 import AllUsers from './pages/admin/AllUsers'
 import UserDetails from './pages/admin/UserDetails'
+import AdminPermison from './pages/admin/AdminPermison'
 
 // import PrivateRoute from "./feature/PrivateRoute"
 
@@ -41,6 +42,7 @@ const App = () => {
       <Route path="/userDashboard" element={<UserDashboard />} />
       <Route path="/admin/users" element={<AllUsers />}  />
       <Route path="/admin/users/:id" element={<UserDetails/>}  />
+      <Route path="/admin/permission" element={<AdminPermison/>}  />
     </Routes>
     <ToastContainer />
   </BrowserRouter>

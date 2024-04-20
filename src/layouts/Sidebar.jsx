@@ -82,7 +82,7 @@ export default function Sidebar({ children }) {
   const sideBarData = admin.isAdmin ? sidebarDataAdmin : sidebarDataUser;
 
   return (
-    <aside className="h-screen">
+    <aside className="h-screen  sticky top-0 z-50">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
         <div className="p-4 pt-3  pb-2 flex justify-between items-center">
           <img
@@ -155,7 +155,7 @@ export function SidebarItem({ icon, text, active, alert, onClick, link }) {
       className={`
         relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer
-        transition-colors group
+        transition-colors z-50 group
         ${
           active
             ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"

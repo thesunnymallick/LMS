@@ -8,7 +8,7 @@ const AllUserTable = ({info, columns}) => {
       };
   return (
     <div>
-     <Table dataSource={info} columns={columns} pagination={paginationOptions} />;
+     <Table bordered dataSource={info} columns={columns} pagination={paginationOptions} />;
     </div>
   )
 }

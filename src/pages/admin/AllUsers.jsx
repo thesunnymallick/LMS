@@ -8,40 +8,41 @@ import { FaSearch } from "react-icons/fa";
 import { FaFilter } from "react-icons/fa6";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/apiConfig";
-import NotFoundProfile from "../../assets/noPicture.png"
+import NotFoundProfile from "../../assets/noPicture.png";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../../layouts/Navbar";
 const AllUsers = () => {
-
-  const navigate=useNavigate()
-  const [info, setInfo]=useState([])
+  const navigate = useNavigate();
+  const [info, setInfo] = useState([]);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-
-
   const statusFilters = [
-    { text: 'Active', value: true },
-    { text: 'Inactive', value: false }
-];
- 
+    { text: "Active", value: true },
+    { text: "Inactive", value: false },
+  ];
 
-
-
- 
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render:(text, record)=>{
-       
-        return(
-            <div className="flex items-center gap-1 text-lg">
-                 <Avatar size={40} src={<img src={NotFoundProfile} alt="avatar"  />} />
-                 <span>{record.name}</span>
+      render: (text, record) => {
+        return (
+          <div className="flex items-center gap-2 text-lg">
+            <div>
+            <Avatar
+              size={40}
+              src={<img src={NotFoundProfile} alt="avatar" />}
+            />
             </div>
-        )
-      }
+            <div className="flex flex-col">
+            <span className="text-sm text-zinc-800 font-medium">{record.name}</span>
+            <span className="text-xs text-zinc-600">{"@user_123"}</span>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: "Email",
@@ -75,13 +76,13 @@ const AllUsers = () => {
       dataIndex: "referralCount",
       key: "referralCount",
       filters: [
-        { text: '5 or more', value: '5' },
-        { text: 'Less than 5', value: 'lessThan5' },
+        { text: "5 or more", value: "5" },
+        { text: "Less than 5", value: "lessThan5" },
       ],
       onFilter: (value, record) => {
-        if (value === '5') {
+        if (value === "5") {
           return record.noOfLead >= 5;
-        } else if (value === 'lessThan5') {
+        } else if (value === "lessThan5") {
           return record.noOfLead < 5;
         }
       },
@@ -103,8 +104,8 @@ const AllUsers = () => {
       filters: statusFilters,
       onFilter: (value, record) => record.active === value,
       render: (active) => (
-        <span  >
-          {active===true ? (
+        <span>
+          {active === true ? (
             <Tag color="success">Active</Tag>
           ) : (
             <Tag color="error">Inactive</Tag>
@@ -118,29 +119,32 @@ const AllUsers = () => {
       key: "status",
       render: (text, record) => (
         <span
-        onClick={()=>navigate(`/admin/users/${record.id}`)} 
-         className="text-2xl cursor-pointer text-zinc-800 hover:text-purple-500">
+          onClick={() => navigate(`/admin/users/${record.id}`)}
+          className="text-2xl cursor-pointer text-zinc-800 hover:text-purple-500"
+        >
           <HiOutlineDocumentChartBar />
         </span>
       ),
     },
   ];
 
-
-  useEffect(()=>{
-
-    const getAllusers=async()=>{
+  useEffect(() => {
+    const getAllusers = async () => {
       try {
-        const {data, status}=await axios.get(`${API_BASE_URL}/api/auth/dashboard/allCustomers`)
-        if(status===200){
-         setInfo(data?.data)
+        const { data, status } = await axios.get(
+          `${API_BASE_URL}/api/auth/dashboard/allCustomers`
+        );
+        if (status === 200) {
+          setInfo(data?.data);
         }
       } catch (error) {
-        setError('An error occurred while fetching users. Please try again later.');
+        setError(
+          "An error occurred while fetching users. Please try again later."
+        );
       }
-    }
-     getAllusers()
-  },[])
+    };
+    getAllusers();
+  }, []);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
@@ -159,19 +163,18 @@ const AllUsers = () => {
       <div className="">
         <Sidebar />
       </div>
-      <div className="bg-zinc-50 py-2 px-6 w-full">
-        
-        <div className="py-4">
-        <h1 className="text-2xl font-semibold">Users Overview</h1>
-        <span className="text-base text-zinc-600">
-        Explore and Manage All Users
-        </span>
-        </div>
+      <div className="bg-gray-50 py-2 px-6 w-full">
+        <NavBar/>
+        <div className="flex items-center justify-between border-b-[1px] border-b-zinc-300 py-4">
+          <div>
+            <h1 className="text-2xl font-semibold">Users Overview</h1>
+            <span className="text-base text-zinc-600">
+              Explore and Manage All Users
+            </span>
+          </div>
 
-        <div className="px-4 py-2 bg-white rounded-md mt-5">
-
-          <div className="flex justify-between py-6 px-4">
-            <div className="w-[30%]">
+          <div className="flex w-[50%] justify-end gap-3">
+          <div className="w-[50%]">
               <TextField
                 type="text"
                 size="small"
@@ -190,11 +193,17 @@ const AllUsers = () => {
                 }}
               />
             </div>
-            <button className="w-[10%] h-10 bg-purple-500 text-white rounded-md flex justify-center items-center gap-2 ">
-              <span><FaFilter/></span>
-               <span>Filter</span>
+            <button className="w-[20%] h-10 bg-purple-500 text-white rounded-md flex justify-center items-center gap-2 ">
+              <span>
+                <FaFilter />
+              </span>
+              <span>Filter</span>
             </button>
           </div>
+
+        </div>
+
+        <div className="py-2  rounded-md mt-2">
 
           <AllUserTable info={filteredUsers} columns={columns} />
         </div>
