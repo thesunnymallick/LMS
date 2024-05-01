@@ -1,8 +1,7 @@
-import { useContext, createContext, useState } from "react";
+import React, {useState } from "react";
 import { MdDashboard } from "react-icons/md";
 import { FaUserGroup } from "react-icons/fa6";
-import { FaAngleDoubleLeft } from "react-icons/fa";
-import { FaAngleDoubleRight } from "react-icons/fa";
+
 import logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
 import { MdLeaderboard } from "react-icons/md";
@@ -11,186 +10,187 @@ import { IoIosLogOut } from "react-icons/io";
 import { GoGift } from "react-icons/go";
 import {addLogout} from "../feature/LoginSlice"
 import {useDispatch, useSelector} from "react-redux"
-const SidebarContext = createContext();
+import { Menu } from "antd";
+import { VerticalLeftOutlined, VerticalRightOutlined } from "@ant-design/icons";
+import noProfile from '../assets/noPicture.png'
+import { RiFileList3Line } from "react-icons/ri";
+import { MdOutlineCreateNewFolder } from "react-icons/md";
+import { RiAdminLine } from "react-icons/ri";
+
 
 export default function Sidebar({ children }) {
   const dispatch=useDispatch()
-  const [expanded, setExpanded] = useState(true);
-  const [activeItem, setActiveItem] = useState(null);
-  const user = useSelector((state) => state.loginInfo.user);
+  const [collapsed, setCollapsed] = useState(false);
   const admin = useSelector((state) => state.loginInfo.admin);
+  
   const sidebarDataAdmin = [
     {
       icon: <MdDashboard />,
-      text: "Dashboard",
+      name: "Dashboard",
       link: "/adminDashboard",
+      menus:[]
     },
     {
       icon: <FaUserGroup />,
-      text: "Users",
+      name: "Users",
       link: "/admin/users",
+      menus:[]
     },
     {
       icon: <MdLeaderboard />,
-      text: "Leads",
+      name: "Leads",
       link: "/admin/leads",
+      menus:[]
     },
     {
       icon: <LuUnlock />,
-      text: "Permission",
+      name: "Permission",
       link: "/admin/permission",
+      menus:[]
     },
     {
       icon: <GoGift />,
-      text: "Reward",
+      name: "Reward",
       link: "/admin/reward",
+      menus:[
+        {
+          icon: <MdOutlineCreateNewFolder/>,
+          name :"Plan Create",
+          link:"/admin/reward/planCreate"
+        },
+        {
+          icon: <RiFileList3Line/>,
+          name :"All Reward List",
+          link:"/admin/reward/reward-list"
+        },
+        {
+          icon:<RiAdminLine/>,
+          name:"Reward Access",
+          link:"/admin/reward/reward-access"
+        }
+      ]
     },
     {
       icon: <IoIosLogOut />,
-      text: "Logout",
+      name: "Logout",
       link: "/",
+      
     },
   ];
 
   const sidebarDataUser = [
     {
       icon: <MdDashboard />,
-      text: "Dashboard",
+      name: "Dashboard",
       link: "/user/dashboard",
+      menus:[]
     },
     {
       icon: <GoGift />,
-      text: "Gift",
+      name: "Gift",
       link: "/user/gift",
+      menus:[]
     },
     {
       icon: <IoIosLogOut />,
-      text: "Logout",
+      name: "Logout",
       link: "/",
+      menus:[]
     },
   ];
+  const iconSize = collapsed===true ? 20 : 24 ; // Consistent icon size
 
 
-  // Function to handle sidebar item click
-  const handleItemClick = (text) => {
-    setActiveItem(text === activeItem ? null : text); // Toggle active state
-    if(text==="Logout"){
-      dispatch(addLogout())
+
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
+
+  
+
+  const handleLogout = (name) => {
+    
+    if (name ==="Logout") {
+      dispatch(addLogout());
     }
   };
   
-  const sideBarData = admin.isAdmin ? sidebarDataAdmin : sidebarDataUser;
+  const sideBarData = admin?.isAdmin ? sidebarDataAdmin : sidebarDataUser;
 
-  return (
-    <aside className="h-screen  sticky top-0 z-50">
-      <nav className="h-full flex flex-col bg-white border-r shadow-sm">
-        <div className="p-4 pt-3  pb-2 flex justify-between items-center">
-          <img
-            src={logo}
-            className={`overflow-hidden transition-all ${
-              expanded ? "w-16" : "w-0"
-            }`}
-            alt=""
-          />
-          <button
-            onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
-          >
-            {expanded ? <FaAngleDoubleLeft /> : <FaAngleDoubleRight />}
-          </button>
-        </div>
 
-        <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">
-            {sideBarData?.map((item) => {
-              return (
-                <SidebarItem
-                  key={item?.text}
-                  text={item?.text}
-                  icon={item?.icon}
-                  link={item?.link}
-                  active={item?.text === activeItem} // Pass active state
-                  onClick={() => handleItemClick(item?.text)}
-                  
-                />
-              );
-            })}
-           
-          </ul>
-        </SidebarContext.Provider>
-
-        <div className="border-t flex p-3">
-          <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-            alt=""
-            className="w-10 h-10 rounded-md"
-          />
-          <div
-            className={`
-              flex justify-between items-center
-              overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}
-          `}
-          >
-            <div className="leading-4">
-              <h4 className="font-semibold">{admin.isAdmin ? admin.adminName : user.userName}</h4>
-              <span className="text-xs text-gray-600">
-                {admin.isAdmin ? admin.adminEmail : user.userEmail}
-              </span>
-            </div>
-            {/* <MoreVertical size={20} /> */}
-          </div>
-        </div>
-      </nav>
-    </aside>
-  );
-}
-
-export function SidebarItem({ icon, text, active, alert, onClick, link }) {
-  const { expanded } = useContext(SidebarContext);
+ 
+  const transformedItems = sideBarData.map((submenu) => {
+    if (submenu.menus &&  submenu.menus.length > 0) {
+      return {
+        key: submenu.link,
+        icon: submenu.icon,
+        label: submenu.name,
+        children: submenu.menus.map((menu) => ({
+          key: menu.link,
+          icon: menu.icon,
+          label: menu.name,
+        })),
+      };
+    } else {
+      return {
+        key: submenu.link,
+        icon: React.cloneElement(submenu.icon, { size: "12" }),
+        label: submenu.name,
+      };
+    }
+  });
   
+  const items = transformedItems.map((item, index) => {
+    if (item.children) {
+      return (
+        <Menu.SubMenu key={item.key} title={item.label} icon={React.cloneElement(item.icon, { size: iconSize })}>
+          {item.children.map((childItem) => (
+            <Menu.Item key={childItem.key} icon={React.cloneElement(childItem.icon, { size: 18 })}>
+              <Link to={childItem.key} style={{ fontSize: "14px" }}>{childItem.label}</Link>
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      );
+    } else {
+      return (
+        <Menu.Item onClick={() => handleLogout(item.label)}  key={item.key} icon={React.cloneElement(item.icon, { size: iconSize })}>
+          <Link  to={item.key} style={{ fontSize: "16px" }}>{item.label}</Link>
+        </Menu.Item>
+      );
+    }
+  });
   return (
-    <Link
-      to={link}
-      onClick={onClick}
-      className={`
-        relative flex items-center py-2 px-3 my-1
-        font-medium rounded-md cursor-pointer
-        transition-colors z-50 group
-        ${
-          active
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
-        }
-    `}
-    >
-      {icon}
-      <span
-        className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3" : "w-0"
-        }`}
-      >
-        {text}
-      </span>
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
-            expanded ? "" : "top-2"
-          }`}
-        />
-      )}
+   
 
-      {!expanded && (
-        <div
-          className={`
-          absolute left-full rounded-md px-2 py-1 ml-6
-          bg-indigo-100 text-indigo-800 text-sm
-          invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-      `}
-        >
-          {text}
-        </div>
-      )}
-    </Link>
+    <div style={{ width: collapsed ? 80 : 270, height: "100%", position: "relative", zIndex: "999" }}>
+      <div className="scrollbar bg-white relative lg:fixed lg:h-[100vh]" style={{ overflowY: "auto", overflowX: "hidden", width: collapsed ? 80 : 270 }}>
+        <Menu  defaultSelectedKeys={["0"]} mode="inline" inlineCollapsed={collapsed}>
+          <div className={`flex items-center  ${collapsed===true ? "justify-center" :"justify-between"} 
+           border-b-[1px] border-b-zinc-300  p-4 mb-5`}>
+            {!collapsed && <img className="w-16" src={logo} alt="companylogo" />}
+            <div>
+              <span onClick={toggleCollapsed} className="text-lg text-zinc-900 font-bold cursor-pointer">{collapsed ? <VerticalLeftOutlined /> : <VerticalRightOutlined />}</span>
+            </div>
+          </div>
+          {items}
+
+          <div className="px-4 py-4 absolute bottom-0 w-full border-t-[1px] border-t-zinc-300">
+              <div className="flex items-center gap-2">
+               <div className="w-10 h-10 rounded-full  flex justify-center items-center">
+               <img className="w-full h-full rounded-full object-cover" src={noProfile} alt="" />
+               </div>
+              {
+                !collapsed &&  <div className="flex flex-col">
+                <span className="text-zinc-700 text-lg">Sunny Mallick</span>
+                <span className="text-zinc-500 text-sm">sunny@123gmail.com</span>
+               </div>
+              }
+              </div>
+          </div>
+        </Menu>
+      </div>
+    </div>
   );
 }
+
+

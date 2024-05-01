@@ -1,17 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import registerBg from "../../assets/registerBg.png";
 import Tab from "@mui/material/Tab";
 import TabList from "@mui/lab/TabList";
 import TabContext from "@mui/lab/TabContext";
 import { FaRegUser } from "react-icons/fa";
 import UserRegister from "../../components/authCom/UserRegister";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const Register = () => {
   const [tab, setTab] = useState("1");
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
+  const { isAdmin } = useSelector(state => state.loginInfo.admin);
+  const { isUser } = useSelector(state => state.loginInfo.user);
+  const naviagte=useNavigate()
 
+  useEffect(() => {
+    if (isAdmin || isUser) {
+      if(isAdmin===true){
+        naviagte("/adminDashboard")
+      }
+      else{
+        naviagte("/userDashboard")
+      }
+     
+    }
+  }, [isAdmin, isUser, naviagte]);
   
   return (
     <div className="w-full h-screen  flex justify-center items-center">

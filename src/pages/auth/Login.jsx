@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import loginBg from "../../assets/loginBg.jpg";
 import Tab from "@mui/material/Tab";
 import TabList from "@mui/lab/TabList";
@@ -7,12 +7,35 @@ import { FaRegUser } from "react-icons/fa";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import UserLogin from "../../components/authCom/UserLogin";
 import AdminLogin from "../../components/authCom/AdminLogin";
+import { useSelector } from "react-redux";
+import {  useNavigate } from "react-router-dom";
 const Login = () => {
   const [tab, setTab] = useState("1");
+
+  console.log("LOGIN----1")
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
+
+  const { isAdmin } = useSelector(state => state.loginInfo.admin);
+  const { isUser } = useSelector(state => state.loginInfo.user);
+  const naviagte=useNavigate()
+
+  useEffect(() => {
+    if (isAdmin || isUser) {
+      if(isAdmin===true){
+        naviagte("/adminDashboard")
+      }
+      else{
+        naviagte("/userDashboard")
+      }
+     
+    }
+  }, [isAdmin, isUser, naviagte]);
+
+  // Your existing login component JSX
+
   return (
     <div className="w-full h-screen  flex justify-center items-center bg-zinc-50">
       <div className="bg-white  shadow-sm  rounded-lg flex gap-6 w-[70%]">

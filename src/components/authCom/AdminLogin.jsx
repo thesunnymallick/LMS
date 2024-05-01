@@ -36,7 +36,7 @@ const AdminLogin = () => {
         newData
       );
       if (status === 200) {
-        console.log(data);
+        console.log("ADMIN INFO", data);
         setLoading(false)
         setErrMsg('')
         toast.success("Admin Login successful!", {
@@ -49,8 +49,8 @@ const AdminLogin = () => {
       }
     } catch (error) {
       setLoading(false)
-      if (error.response.data.status === 400 || 401) {
-        setErrMsg(error.response.data.data);
+      if (error?.response?.data?.status === 400 || 401) {
+        setErrMsg(error?.response?.data?.data);
       }
     }
   };
